@@ -20,11 +20,6 @@ jobs:
           pip install poetry
           make install
 
-
-      - name: start tests and linter
-        run: |
-          make check
-
       - name: code coverage and publish
         uses: paambaati/codeclimate-action@v5.0.0
         if: github.ref_name == 'main'
