@@ -1,0 +1,35 @@
+name: page-analyzer
+on:
+  - push
+  - pull_request
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.12]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python ${{matrix.python-version}}
+        uses: actions/setup-Python@v4
+        with:
+          python-version: ${{matrix.python-version}}
+
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          make install
+
+
+      - name: start tests and linter
+        run: |
+          make check
+
+      - name: code coverage and publish
+        uses: paambaati/codeclimate-action@v5.0.0
+        if: github.ref_name == 'main'
+        env:
+          CC_TEST_REPORTER_ID: ${{secrets.CC_REPORTER_ID}}
+        with: 
+          coverageCommand: make test-coverage
+          debug: True
