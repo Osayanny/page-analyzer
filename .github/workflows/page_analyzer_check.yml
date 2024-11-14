@@ -19,12 +19,3 @@ jobs:
         run: |
           pip install poetry
           make install
-
-      - name: code coverage and publish
-        uses: paambaati/codeclimate-action@v5.0.0
-        if: github.ref_name == 'main'
-        env:
-          CC_TEST_REPORTER_ID: ${{secrets.CC_REPORTER_ID}}
-        with: 
-          coverageCommand: make test-coverage
-          debug: True
