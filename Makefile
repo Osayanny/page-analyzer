@@ -10,15 +10,12 @@ test-coverage:
 	poetry run pytest --cov=gendiff --cov-report xml
 
 lint:
-	poetry run flake8 gendiff
+	poetry run flake8 page_analyzer
 
 selfcheck:
 	poetry check
 
 check: selfcheck test lint
-
-build:
-	poetry build
 
 package-install:
 	pip install dist/*.whl
