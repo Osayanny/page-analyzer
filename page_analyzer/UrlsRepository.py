@@ -31,7 +31,9 @@ class Urls:
 
     def _create(self, url):
         with self.conn.cursor() as cur:
-            cur.execute("INSERT INTO urls (name, created_at) VALUES (%s, %s) RETURNING id", (url['name'], url['created_at']))
+            cur.execute(
+                "INSERT INTO urls (name, created_at) VALUES (%s, %s) RETURNING id", # noqa
+                (url['name'], url['created_at']))
             id = cur.fetchone()[0]
             url['id'] = id
         self.conn.commit()
@@ -41,13 +43,5 @@ class Urls:
         urls = self._find_by_name(url['name'])
         if not urls:
             return (self._create(url), 'success')
-        else: 
+        else:
             return (urls[0], 'exist')
-            
-
-
-            
-
-
-
-        
