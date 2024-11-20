@@ -16,18 +16,20 @@ class Urls:
     def get_content(self):
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute("SELECT * FROM urls ORDER BY id DESC")
-            return [dict(row) for row in cur]
+            rows = cur.fetchall()
+        return [dict(row) for row in rows]
 
     def find(self, id):
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute("SELECT * FROM urls WHERE id=%s", (id,))
             row = cur.fetchone()
-            return dict(row) if row else None
+        return dict(row) if row else None
 
     def _find_by_name(self, name):
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute("SELECT * FROM urls WHERE name ILIKE %s", (name, ))
-            return cur.fetchall()
+            res = cur.fetchall()
+        return res
 
     def _create(self, url):
         with self.conn.cursor() as cur:
