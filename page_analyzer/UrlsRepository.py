@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL')
 connect = pg2.connect(DATABASE_URL)
+connect.autocommit = True
 
 
 class Urls:
