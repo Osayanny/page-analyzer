@@ -36,7 +36,7 @@ class Urls:
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute("SELECT * FROM urls WHERE name ILIKE %s", (name, ))
             res = cur.fetchall()
-        self.conn.close()
+
         return res
 
     def _create(self, url):
@@ -55,4 +55,5 @@ class Urls:
         if not urls:
             return (self._create(url), 'success')
         else:
+            self.conn.close()
             return (urls[0], 'exist')
