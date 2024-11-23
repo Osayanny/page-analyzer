@@ -39,7 +39,6 @@ class Urls:
                 (url['name'], url['created_at']))
             id = cur.fetchone()[0]
             url['id'] = id
-        self.conn.commit()
         return url
 
     def save(self, url):
