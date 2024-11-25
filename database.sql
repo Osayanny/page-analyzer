@@ -1,5 +1,5 @@
-drop table if exists urls;
-drop table if exists url_checks;
+drop table if exists urls cascade;
+drop table if exists url_checks cascade;
 
 create table urls (
 id int primary key generated always as identity,
