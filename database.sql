@@ -1,5 +1,5 @@
 drop table if exists urls;
-dop table if exists url_checks;
+drop table if exists url_checks;
 
 create table urls (
 id int primary key generated always as identity,
