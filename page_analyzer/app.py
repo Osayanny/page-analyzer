@@ -1,6 +1,6 @@
 import os
 import validators
-from page_analyzer.UrlsRepository import Urls
+from page_analyzer.repositories import Urls, Checks
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 from datetime import date
@@ -31,8 +31,8 @@ def index():
 
 @app.route('/urls')
 def urls_index():
-    repo = Urls()
-    urls = repo.get_content()
+    repo = Checks()
+    urls = repo.get_url_with_last_check()
     return render_template(
         'urls.html',
         urls=urls,
@@ -69,11 +69,26 @@ def index_post():
 
 @app.route('/urls/<id>')
 def urls_show(id):
-    repo = Urls()
-    url = repo.find(id)
+    urls_repo = Urls()
+    checks_repo = Checks()
+    url = urls_repo.find(id)
+    checks = checks_repo.get_checks(id)
     messages = get_flashed_messages(with_categories=True)
     return render_template(
         'show.html',
         messages=messages,
-        url=url
+        url=url,
+        checks=checks
     )
+
+@app.route('/urls/<id>/checks', methods=['POST'])
+def url_check(id):
+    repo = Checks()
+    created_at = date.today().isoformat()
+    check = {
+        'url_id': id,
+        'created_at': created_at
+        }
+    check = repo.save(check)
+    flash('Страница успешно проверена', 'success')
+    return redirect(url_for('urls_show', id=id))
