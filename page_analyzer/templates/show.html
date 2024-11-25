@@ -18,10 +18,10 @@
     </tbody>
 </table>
 <h2 class="mt-5 md-3">Проверки</h2>
-<form action="#" method="POST">
+<form action="{{url_for('url_check', id=url.id)}}" method="POST">
     <input class="btn btn-primary" type="submit" value="Запустить проверку">
 </form>
-<table class="table table-bordered table-hover mt-2">
+<table class="table table-bordered table-hover mt-2" data-test="checks">
     <thead>
         <tr>
             <th>ID</th>
@@ -33,7 +33,18 @@
         </tr>
     </thead>
     <tbody>
-        <!--Analyze data-->
+        {%if checks%}
+        {%for check in checks%}
+        <tr>
+            <td>{{check.id}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{check.created_at}}</td>
+        </tr>
+        {%endfor%}
+        {%endif%}
     </tbody>
 </table>
 {%endblock%}
