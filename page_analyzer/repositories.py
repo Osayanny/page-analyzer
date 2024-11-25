@@ -57,3 +57,53 @@ class Urls:
         else:
             self.conn.close()
             return (urls[0], 'exist')
+
+
+class Checks:
+    def __init__(self):
+        self.conn = _get_connection()
+
+
+    def get_checks(self, id):
+        with self.conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute("SELECT * FROM url_checks WHERE url_id=%s ORDER BY id DESC", (id,))
+            rows = cur.fetchall()
+
+        self.conn.close()
+        return [dict(row) for row in rows]
+    
+    
+    def get_url_with_last_check(self):
+        with self.conn.cursor(cursor_factory=DictCursor) as cur:
+            cur.execute("""
+                SELECT
+                    url.id,
+                    url.name,
+                    MAX(checks.created_at) AS last_check
+                FROM urls AS url
+                LEFT JOIN url_checks AS checks
+                ON url.id = checks.url_id
+                GROUP BY url.id, url.name
+                ORDER BY url.id DESC
+                """
+            )
+            rows = cur.fetchall()
+
+        self.conn.close()
+        return [dict(row) for row in rows]
+
+    
+    def save(self, check):
+        with self.conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO url_checks (url_id, created_at) VALUES (%s, %s) RETURNING id", # noqa
+                (check['url_id'], check['created_at'])
+            )
+            id = cur.fetchone()[0]
+            check['id'] = id
+        
+        self.conn.commit()
+        self.conn.close()
+        return check
+
+            
