@@ -10,7 +10,7 @@ created_at date not null
 create table url_checks (
     id int primary key generated always as identity,
     url_id int references urls (id) not null,
-    status_code int,
+    status_code int not null,
     h1 text,
     title text,
     description text,
