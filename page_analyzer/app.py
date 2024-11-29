@@ -1,5 +1,6 @@
 import os
 import validators
+import requests
 from page_analyzer.repositories import Urls, Checks
 from dotenv import load_dotenv
 from urllib.parse import urlparse
@@ -83,12 +84,31 @@ def urls_show(id):
 
 @app.route('/urls/<id>/checks', methods=['POST'])
 def url_check(id):
-    repo = Checks()
-    created_at = date.today().isoformat()
-    check = {
-        'url_id': id,
-        'created_at': created_at
-        }
-    check = repo.save(check)
-    flash('Страница успешно проверена', 'success')
-    return redirect(url_for('urls_show', id=id))
+    urls_repo = Urls()
+    checks_repo = Checks()
+    url = urls_repo.find(id)
+
+    response = requests.get(url['name'])
+    try: 
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        flash('Произошла ошибка при проверке', 'danger')
+        return redirect(url_for('urls_show', id=id))
+    else:
+        html = response.text
+        code = response.status_code
+        # Временная заглушка
+        _ = ''
+
+        created_at = date.today().isoformat()
+        check = {
+            'url_id': id,
+            'code': code,
+            'h1': _,
+            'title': _,
+            'description': _,
+            'created_at': created_at
+            }
+        checks_repo.save(check)
+        flash('Страница успешно проверена', 'success')
+        return redirect(url_for('urls_show', id=id))
