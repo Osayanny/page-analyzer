@@ -79,11 +79,12 @@ class Checks:
                 SELECT
                     url.id,
                     url.name,
-                    MAX(checks.created_at) AS last_check
+                    MAX(checks.created_at) AS last_check,
+                    checks.status_code
                 FROM urls AS url
                 LEFT JOIN url_checks AS checks
                 ON url.id = checks.url_id
-                GROUP BY url.id, url.name
+                GROUP BY url.id, url.name, checks.status_code
                 ORDER BY url.id DESC
                 """
             )
@@ -96,8 +97,18 @@ class Checks:
     def save(self, check):
         with self.conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO url_checks (url_id, created_at) VALUES (%s, %s) RETURNING id", # noqa
-                (check['url_id'], check['created_at'])
+                """INSERT INTO
+                    url_checks (
+                        url_id,
+                        status_code,
+                        h1,
+                        title,
+                        description,
+                        created_at
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    RETURNING id""",
+                (check['url_id'], check['code'], check['h1'], check['title'], check['description'], check['created_at'])
             )
             id = cur.fetchone()[0]
             check['id'] = id
