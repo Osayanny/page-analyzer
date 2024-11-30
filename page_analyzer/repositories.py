@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL')
 
+
 def _get_connection():
     connect = pg2.connect(DATABASE_URL)
     return connect
@@ -63,16 +64,20 @@ class Checks:
     def __init__(self):
         self.conn = _get_connection()
 
-
     def get_checks(self, id):
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute("SELECT * FROM url_checks WHERE url_id=%s ORDER BY id DESC", (id,))
+            cur.execute(
+                """
+                SELECT *
+                FROM url_checks
+                WHERE url_id=%s
+                ORDER BY id DESC
+                """, (id,))
             rows = cur.fetchall()
 
         self.conn.close()
         return [dict(row) for row in rows]
-    
-    
+
     def get_url_with_last_check(self):
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute("""
@@ -86,14 +91,12 @@ class Checks:
                 ON url.id = checks.url_id
                 GROUP BY url.id, url.name, checks.status_code
                 ORDER BY url.id DESC
-                """
-            )
+                """)
             rows = cur.fetchall()
 
         self.conn.close()
         return [dict(row) for row in rows]
 
-    
     def save(self, check):
         with self.conn.cursor() as cur:
             cur.execute(
@@ -108,13 +111,18 @@ class Checks:
                     )
                     VALUES (%s, %s, %s, %s, %s, %s)
                     RETURNING id""",
-                (check['url_id'], check['code'], check['h1'], check['title'], check['description'], check['created_at'])
+                (
+                    check['url_id'],
+                    check['code'],
+                    check['h1'],
+                    check['title'],
+                    check['description'],
+                    check['created_at']
+                    )
             )
             id = cur.fetchone()[0]
             check['id'] = id
-        
+
         self.conn.commit()
         self.conn.close()
         return check
-
-            
