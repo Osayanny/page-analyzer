@@ -1,6 +1,7 @@
 import os
 import validators
 import requests
+import requests.exceptions
 from page_analyzer.repositories import Urls, Checks
 from dotenv import load_dotenv
 from urllib.parse import urlparse
@@ -82,16 +83,20 @@ def urls_show(id):
         checks=checks
     )
 
+
 @app.route('/urls/<id>/checks', methods=['POST'])
 def url_check(id):
     urls_repo = Urls()
     checks_repo = Checks()
     url = urls_repo.find(id)
 
-    response = requests.get(url['name'])
-    try: 
+    try:
+        response = requests.get(url['name'])
         response.raise_for_status()
-    except requests.exceptions.HTTPError:
+    except (
+        requests.exceptions.HTTPError,
+        requests.exceptions.ConnectionError
+    ):
         flash('Произошла ошибка при проверке', 'danger')
         return redirect(url_for('urls_show', id=id))
     else:
