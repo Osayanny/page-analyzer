@@ -19,3 +19,7 @@ jobs:
         run: |
           pip install poetry
           make install
+
+      - name: start tests and linter
+        run: |
+          make check
