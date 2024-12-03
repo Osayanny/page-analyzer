@@ -3,6 +3,7 @@ import validators
 import requests
 import requests.exceptions
 from page_analyzer.repositories import Urls, Checks
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 from datetime import date
@@ -18,6 +19,22 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+def get_tags(html):
+    tags = {}
+    soup = BeautifulSoup(html, 'html.parser')
+
+    title = soup.find('title')
+    h1 = soup.find('h1')
+    description = soup.find('meta', {'name': 'description'})
+    
+    if title:
+        tags['title'] = title.text
+    if h1:
+        tags['h1'] = h1.text
+    if description:
+        tags['description'] = description.get('content')
+    return tags
 
 
 @app.route('/')
@@ -102,16 +119,16 @@ def url_check(id):
     else:
         html = response.text
         code = response.status_code
-        # Временная заглушка
-        _ = ''
+        tags = get_tags(html)
+        
 
         created_at = date.today().isoformat()
         check = {
             'url_id': id,
             'code': code,
-            'h1': _,
-            'title': _,
-            'description': _,
+            'h1': tags.get('h1', ''),
+            'title': tags.get('title', ''),
+            'description': tags.get('description', ''),
             'created_at': created_at
             }
         checks_repo.save(check)
