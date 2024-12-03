@@ -49,7 +49,7 @@ class Urls:
 
     def _create(self, url):
         query = """
-            NSERT INTO urls (name, created_at)
+            INSERT INTO urls (name, created_at)
             VALUES (%s, %s) RETURNING id
             """
         parms = (url['name'], url['created_at'])
