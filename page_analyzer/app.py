@@ -1,10 +1,12 @@
 import os
+
 from datetime import date
 from urllib.parse import urlparse
 
 import requests
 import requests.exceptions
 import validators
+
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from flask import (Flask, flash, get_flashed_messages, redirect,
