@@ -20,6 +20,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
+
 def get_tags(html):
     tags = {}
     soup = BeautifulSoup(html, 'html.parser')
@@ -27,7 +28,7 @@ def get_tags(html):
     title = soup.find('title')
     h1 = soup.find('h1')
     description = soup.find('meta', {'name': 'description'})
-    
+
     if title:
         tags['title'] = title.text
     if h1:
@@ -118,11 +119,11 @@ def url_check(id):
         return redirect(url_for('urls_show', id=id))
     else:
         html = response.text
+
         code = response.status_code
         tags = get_tags(html)
-        
-
         created_at = date.today().isoformat()
+
         check = {
             'url_id': id,
             'code': code,
