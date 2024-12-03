@@ -1,8 +1,8 @@
 import os
-import psycopg2 as pg2
-from psycopg2.extras import DictCursor
-from dotenv import load_dotenv
 
+import psycopg2 as pg2
+from dotenv import load_dotenv
+from psycopg2.extras import DictCursor
 
 load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL')
@@ -24,7 +24,6 @@ class Urls:
                 return cur.fetchall()
             else:
                 return cur.fetchone()
-
 
     def get_content(self):
         query = "SELECT * FROM urls ORDER BY id DESC"
@@ -55,7 +54,7 @@ class Urls:
             """
         parms = (url['name'], url['created_at'])
 
-        id = self.execute_query(query,parms, factory=None)[0]
+        id = self.execute_query(query, parms, factory=None)[0]
         url['id'] = id
 
         self.conn.commit()
@@ -134,7 +133,7 @@ class Checks:
             check['description'],
             check['created_at']
         )
-            
+
         id = self.execute_query(query, parms, factory=None)[0]
         check['id'] = id
 

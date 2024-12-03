@@ -1,19 +1,16 @@
 import os
-import validators
+from datetime import date
+from urllib.parse import urlparse
+
 import requests
 import requests.exceptions
-from page_analyzer.repositories import Urls, Checks
+import validators
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from urllib.parse import urlparse
-from datetime import date
-from flask import Flask
-from flask import render_template
-from flask import request
-from flask import flash, get_flashed_messages
-from flask import redirect
-from flask import url_for
+from flask import (Flask, flash, get_flashed_messages, redirect,
+                   render_template, request, url_for)
 
+from page_analyzer.repositories import Checks, Urls
 
 load_dotenv()
 
