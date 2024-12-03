@@ -66,7 +66,7 @@ def index_post():
     if not is_valid:
         flash('Некорректный URL', 'danger')
         messages = get_flashed_messages(with_categories=True)
-        return render_template('index.html', url=url, messages=messages)
+        return render_template('index.html', url=url, messages=messages), 422
 
     parsed_url = urlparse(url.get('url'))
     name = f'{parsed_url.scheme}://{parsed_url.netloc}'
