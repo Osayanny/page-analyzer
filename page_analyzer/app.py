@@ -7,8 +7,15 @@ import requests.exceptions
 import validators
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from flask import (Flask, flash, get_flashed_messages, redirect,
-                   render_template, request, url_for)
+from flask import (
+    Flask,
+    flash,
+    get_flashed_messages,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
 from page_analyzer.repositories import Checks, Urls
 
