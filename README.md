@@ -6,6 +6,13 @@
 
 ## Page analyzer
 
+### Description
+
 This web application is designed for SEO analysis of websites.
 
 [Link to app](https://python-project-83-ukz2.onrender.com)
+
+### How to use?
+
+1. Put a link into field on main page and push the blue button
+2. After your link was added push blue button again
