@@ -1,21 +1,12 @@
 import os
 
 import psycopg2 as pg2
-from dotenv import load_dotenv
 from psycopg2.extras import DictCursor
-
-load_dotenv()
-DATABASE_URL = os.getenv('DATABASE_URL')
-
-
-def _get_connection():
-    connect = pg2.connect(DATABASE_URL)
-    return connect
 
 
 class Urls:
-    def __init__(self):
-        self.conn = _get_connection()
+    def __init__(self, DATABASE_URL):
+        self.conn = pg2.connect(DATABASE_URL)
 
     def execute_query(self, query, parms=None, factory=DictCursor):
         with self.conn.cursor(cursor_factory=factory) as cur:
@@ -29,7 +20,7 @@ class Urls:
         query = "SELECT * FROM urls ORDER BY id DESC"
         rows = self.execute_query(query)
 
-        self.conn.close()
+        self.conn.commit()
         return [dict(row) for row in rows]
 
     def find(self, id):
@@ -37,7 +28,7 @@ class Urls:
         parms = (id,)
         row = self.execute_query(query, parms)
 
-        self.conn.close()
+        self.conn.commit()
         return dict(row[0]) if row else None
 
     def _find_by_name(self, name):
@@ -58,7 +49,6 @@ class Urls:
         url['id'] = id
 
         self.conn.commit()
-        self.conn.close()
         return url
 
     def save(self, url):
@@ -66,13 +56,13 @@ class Urls:
         if not urls:
             return (self._create(url), 'success')
         else:
-            self.conn.close()
+            self.conn.commit()
             return (urls[0], 'exist')
 
 
 class Checks:
-    def __init__(self):
-        self.conn = _get_connection()
+    def __init__(self, DATABASE_URL):
+        self.conn = pg2.connect(DATABASE_URL)
 
     def execute_query(self, query, parms=None, factory=DictCursor):
         with self.conn.cursor(cursor_factory=factory) as cur:
@@ -92,7 +82,7 @@ class Checks:
         parms = (id,)
         rows = self.execute_query(query, parms)
 
-        self.conn.close()
+        self.conn.commit()
         return [dict(row) for row in rows]
 
     def get_url_with_last_check(self):
@@ -110,7 +100,7 @@ class Checks:
             """
         rows = self.execute_query(query)
 
-        self.conn.close()
+        self.conn.commit()
         return [dict(row) for row in rows]
 
     def save(self, check):
@@ -138,5 +128,5 @@ class Checks:
         check['id'] = id
 
         self.conn.commit()
-        self.conn.close()
+        self.conn.commit()
         return check
