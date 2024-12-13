@@ -45,10 +45,8 @@ def get_tags(html):
 @app.route('/')
 def index():
     url = {}
-    messages = get_flashed_messages(with_categories=True)
     return render_template(
         'index.html',
-        messages=messages,
         url=url
     )
 
@@ -72,8 +70,7 @@ def index_post():
 
     if not is_valid:
         flash('Некорректный URL', 'danger')
-        messages = get_flashed_messages(with_categories=True)
-        return render_template('index.html', url=url, messages=messages), 422
+        return render_template('index.html', url=url), 422
 
     parsed_url = urlparse(url)
     name = f'{parsed_url.scheme}://{parsed_url.netloc}'
@@ -97,10 +94,8 @@ def urls_show(id):
     checks_repo = Checks()
     url = urls_repo.find(id)
     checks = checks_repo.get_checks(id)
-    messages = get_flashed_messages(with_categories=True)
     return render_template(
         'show.html',
-        messages=messages,
         url=url,
         checks=checks
     )
