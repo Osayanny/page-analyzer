@@ -12,7 +12,6 @@ def parse_response(response):
     title = soup.find('title')
     description = soup.find('meta', {'name': 'description'})
 
-
     if title:
         tags['title'] = title.text
     if h1:

@@ -1,20 +1,14 @@
 import os
 from datetime import date
 from urllib.parse import urlparse
-from page_analyzer.parser import parse_response
+
 import requests
 import requests.exceptions
 import validators
 from dotenv import load_dotenv
-from flask import (
-    Flask,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import Flask, flash, redirect, render_template, request, url_for
 
+from page_analyzer.parser import parse_response
 from page_analyzer.repositories import Checks, Urls
 
 load_dotenv()
@@ -22,9 +16,6 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 database_url = os.getenv('DATABASE_URL')
-
-
-
 
 
 @app.route('/')
