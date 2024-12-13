@@ -1,4 +1,3 @@
-from datetime import date
 from bs4 import BeautifulSoup
 
 

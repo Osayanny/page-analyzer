@@ -1,4 +1,3 @@
-import os
 
 import psycopg2 as pg2
 from psycopg2.extras import DictCursor

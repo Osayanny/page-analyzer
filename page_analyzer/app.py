@@ -5,12 +5,10 @@ from page_analyzer.parser import parse_response
 import requests
 import requests.exceptions
 import validators
-from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from flask import (
     Flask,
     flash,
-    get_flashed_messages,
     redirect,
     render_template,
     request,
