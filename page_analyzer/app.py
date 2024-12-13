@@ -44,7 +44,7 @@ def get_tags(html):
 
 @app.route('/')
 def index():
-    url = {'url': ''}
+    url = {}
     messages = get_flashed_messages(with_categories=True)
     return render_template(
         'index.html',
@@ -55,8 +55,8 @@ def index():
 
 @app.route('/urls')
 def urls_index():
-    repo = Checks()
-    urls = repo.get_url_with_last_check()
+    checks_repo = Checks()
+    urls = checks_repo.get_url_with_last_check()
     return render_template(
         'urls.html',
         urls=urls,
@@ -65,24 +65,24 @@ def urls_index():
 
 @app.route('/urls', methods=['POST'])
 def index_post():
-    repo = Urls()
+    urls_repo = Urls()
 
-    url = request.form.to_dict()
-    is_valid = validators.url(url.get('url'))
+    url = request.form.to_dict().get('url')
+    is_valid = validators.url(url)
 
     if not is_valid:
         flash('Некорректный URL', 'danger')
         messages = get_flashed_messages(with_categories=True)
         return render_template('index.html', url=url, messages=messages), 422
 
-    parsed_url = urlparse(url.get('url'))
+    parsed_url = urlparse(url)
     name = f'{parsed_url.scheme}://{parsed_url.netloc}'
     created_at = date.today().isoformat()
     url = {
         'name': name,
         'created_at': created_at
     }
-    url, status = repo.save(url)
+    url, status = urls_repo.save(url)
     if status == 'success':
         flash('Страница успешно добавлена', 'success')
     elif status == 'exist':
