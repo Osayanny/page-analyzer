@@ -1,7 +1,7 @@
 import os
 from datetime import date
 from urllib.parse import urlparse
-
+from page_analyzer.parser import parse_response
 import requests
 import requests.exceptions
 import validators
@@ -25,21 +25,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 
-def get_tags(html):
-    tags = {}
-    soup = BeautifulSoup(html, 'html.parser')
 
-    title = soup.find('title')
-    h1 = soup.find('h1')
-    description = soup.find('meta', {'name': 'description'})
-
-    if title:
-        tags['title'] = title.text
-    if h1:
-        tags['h1'] = h1.text
-    if description:
-        tags['description'] = description.get('content')
-    return tags
 
 
 @app.route('/')
@@ -117,20 +103,15 @@ def url_check(url_id):
         flash('Произошла ошибка при проверке', 'danger')
         return redirect(url_for('urls_show', url_id=url_id))
     else:
-        html = response.text
-
-        code = response.status_code
-        tags = get_tags(html)
-        created_at = date.today().isoformat()
-
+        tags = parse_response(response)
         check = {
             'url_id': url_id,
-            'code': code,
+            'code': response.status_code,
             'h1': tags.get('h1', ''),
             'title': tags.get('title', ''),
             'description': tags.get('description', ''),
-            'created_at': created_at
-            }
+            'created_at': date.today().isoformat()
+        }
         checks_repo.save(check)
         flash('Страница успешно проверена', 'success')
         return redirect(url_for('urls_show', url_id=url_id))
