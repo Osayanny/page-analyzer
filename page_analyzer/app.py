@@ -85,15 +85,15 @@ def index_post():
     elif status == 'exist':
         flash('Страница уже существует', 'info')
 
-    return redirect(url_for('urls_show', id=url['id']))
+    return redirect(url_for('urls_show', url_id=url['id']))
 
 
-@app.route('/urls/<id>')
-def urls_show(id):
+@app.route('/urls/<url_id>')
+def urls_show(url_id):
     urls_repo = Urls()
     checks_repo = Checks()
-    url = urls_repo.find(id)
-    checks = checks_repo.get_checks(id)
+    url = urls_repo.find(url_id)
+    checks = checks_repo.get_checks(url_id)
     return render_template(
         'show.html',
         url=url,
@@ -101,11 +101,11 @@ def urls_show(id):
     )
 
 
-@app.route('/urls/<id>/checks', methods=['POST'])
-def url_check(id):
+@app.route('/urls/<url_id>/checks', methods=['POST'])
+def url_check(url_id):
     urls_repo = Urls()
     checks_repo = Checks()
-    url = urls_repo.find(id)
+    url = urls_repo.find(url_id)
 
     try:
         response = requests.get(url['name'])
@@ -115,7 +115,7 @@ def url_check(id):
         requests.exceptions.ConnectionError
     ):
         flash('Произошла ошибка при проверке', 'danger')
-        return redirect(url_for('urls_show', id=id))
+        return redirect(url_for('urls_show', url_id=url_id))
     else:
         html = response.text
 
@@ -124,7 +124,7 @@ def url_check(id):
         created_at = date.today().isoformat()
 
         check = {
-            'url_id': id,
+            'url_id': url_id,
             'code': code,
             'h1': tags.get('h1', ''),
             'title': tags.get('title', ''),
@@ -133,4 +133,4 @@ def url_check(id):
             }
         checks_repo.save(check)
         flash('Страница успешно проверена', 'success')
-        return redirect(url_for('urls_show', id=id))
+        return redirect(url_for('urls_show', url_id=url_id))

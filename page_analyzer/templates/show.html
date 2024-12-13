@@ -18,7 +18,7 @@
     </tbody>
 </table>
 <h2 class="mt-5 md-3">Проверки</h2>
-<form action="{{url_for('url_check', id=url.id)}}" method="POST">
+<form action="{{url_for('url_check', url_id=url.id)}}" method="POST">
     <input class="btn btn-primary" type="submit" value="Запустить проверку">
 </form>
 <table class="table table-bordered table-hover mt-2" data-test="checks">

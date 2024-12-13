@@ -16,7 +16,7 @@
             {%for url in urls%}
             <tr>
                 <td>{{url.id}}</td>
-                <td><a href="{{url_for('urls_show', id=url['id'])}}">{{url.name}}</a></td>
+                <td><a href="{{url_for('urls_show', url_id=url['id'])}}">{{url.name}}</a></td>
                 <td>{{url.last_check or ''}}</td>
                 <td>{{url.status_code or ''}}</td>
             </tr>
