@@ -23,6 +23,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+database_url = os.getenv('DATABASE_URL')
 
 
 
@@ -39,7 +40,7 @@ def index():
 
 @app.route('/urls')
 def urls_index():
-    checks_repo = Checks()
+    checks_repo = Checks(database_url)
     urls = checks_repo.get_url_with_last_check()
     return render_template(
         'urls.html',
@@ -49,7 +50,7 @@ def urls_index():
 
 @app.route('/urls', methods=['POST'])
 def index_post():
-    urls_repo = Urls()
+    urls_repo = Urls(database_url)
 
     url = request.form.to_dict().get('url')
     is_valid = validators.url(url)
@@ -76,8 +77,8 @@ def index_post():
 
 @app.route('/urls/<url_id>')
 def urls_show(url_id):
-    urls_repo = Urls()
-    checks_repo = Checks()
+    urls_repo = Urls(database_url)
+    checks_repo = Checks(database_url)
     url = urls_repo.find(url_id)
     checks = checks_repo.get_checks(url_id)
     return render_template(
@@ -89,8 +90,8 @@ def urls_show(url_id):
 
 @app.route('/urls/<url_id>/checks', methods=['POST'])
 def url_check(url_id):
-    urls_repo = Urls()
-    checks_repo = Checks()
+    urls_repo = Urls(database_url)
+    checks_repo = Checks(database_url)
     url = urls_repo.find(url_id)
 
     try:
