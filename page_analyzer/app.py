@@ -20,10 +20,10 @@ database_url = os.getenv('DATABASE_URL')
 
 @app.route('/')
 def index():
-    url = {}
+
     return render_template(
         'index.html',
-        url=url
+        url={}
     )
 
 
