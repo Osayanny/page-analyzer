@@ -115,6 +115,6 @@ class Checks:
             check['created_at']
         )
 
-        id = self.execute_query(query, parms, factory=None)[0]
+        self.execute_query(query, parms, factory=None)
 
         self.conn.commit()
