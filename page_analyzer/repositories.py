@@ -46,7 +46,6 @@ class Urls:
 
         id = self.execute_query(query, parms, factory=None)[0]
 
-
         self.conn.commit()
         return id
 
