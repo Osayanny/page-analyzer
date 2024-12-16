@@ -38,7 +38,7 @@ def urls_index():
 
 
 @app.route('/urls', methods=['POST'])
-def index_post():
+def urls_index_post():
     urls_repo = Urls(database_url)
 
     url = request.form.to_dict().get('url')
@@ -51,17 +51,20 @@ def index_post():
     parsed_url = urlparse(url)
     name = f'{parsed_url.scheme}://{parsed_url.netloc}'
     created_at = date.today().isoformat()
-    url = {
-        'name': name,
-        'created_at': created_at
-    }
-    url, status = urls_repo.save(url)
-    if status == 'success':
-        flash('Страница успешно добавлена', 'success')
-    elif status == 'exist':
-        flash('Страница уже существует', 'info')
 
-    return redirect(url_for('urls_show', url_id=url['id']))
+    url = urls_repo.find_by_name(name)
+    if url:
+        flash('Страница уже существует', 'info')
+        url_id = url[0].get('id')
+    else:
+        url = {
+            'name': name,
+            'created_at': created_at
+        }
+        url_id = urls_repo.create(url)
+        flash('Страница успешно добавлена', 'success')
+
+    return redirect(url_for('urls_show', url_id=url_id))
 
 
 @app.route('/urls/<url_id>')
@@ -71,7 +74,7 @@ def urls_show(url_id):
     url = urls_repo.find(url_id)
     checks = checks_repo.get_checks(url_id)
     return render_template(
-        'show.html',
+        'url.html',
         url=url,
         checks=checks
     )

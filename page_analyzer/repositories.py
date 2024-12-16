@@ -10,10 +10,10 @@ class Urls:
     def execute_query(self, query, parms=None, factory=DictCursor):
         with self.conn.cursor(cursor_factory=factory) as cur:
             cur.execute(query, parms)
-            if query.lstrip().startswith('SELECT'):
-                return cur.fetchall()
-            else:
+            if factory is None:
                 return cur.fetchone()
+            else:
+                return cur.fetchall()
 
     def get_content(self):
         query = "SELECT * FROM urls ORDER BY id DESC"
@@ -30,14 +30,14 @@ class Urls:
         self.conn.commit()
         return dict(row[0]) if row else None
 
-    def _find_by_name(self, name):
+    def find_by_name(self, name):
         query = "SELECT * FROM urls WHERE name ILIKE %s"
         parms = (name, )
 
         res = self.execute_query(query, parms)
         return res
 
-    def _create(self, url):
+    def create(self, url):
         query = """
             INSERT INTO urls (name, created_at)
             VALUES (%s, %s) RETURNING id
@@ -45,18 +45,10 @@ class Urls:
         parms = (url['name'], url['created_at'])
 
         id = self.execute_query(query, parms, factory=None)[0]
-        url['id'] = id
+
 
         self.conn.commit()
-        return url
-
-    def save(self, url):
-        urls = self._find_by_name(url['name'])
-        if not urls:
-            return (self._create(url), 'success')
-        else:
-            self.conn.commit()
-            return (urls[0], 'exist')
+        return id
 
 
 class Checks:
@@ -66,10 +58,10 @@ class Checks:
     def execute_query(self, query, parms=None, factory=DictCursor):
         with self.conn.cursor(cursor_factory=factory) as cur:
             cur.execute(query, parms)
-            if query.lstrip().startswith('SELECT'):
-                return cur.fetchall()
-            else:
+            if factory is None:
                 return cur.fetchone()
+            else:
+                return cur.fetchall()
 
     def get_checks(self, id):
         query = """
@@ -124,8 +116,5 @@ class Checks:
         )
 
         id = self.execute_query(query, parms, factory=None)[0]
-        check['id'] = id
 
         self.conn.commit()
-        self.conn.commit()
-        return check
