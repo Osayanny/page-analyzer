@@ -2,118 +2,101 @@
 import psycopg2 as pg2
 from psycopg2.extras import DictCursor
 
+def get_cursor(factory=None):
+    def wrapper(func):
+        def inner(self, *args, **kwargs):
+            with self.conn.cursor(cursor_factory=factory) as cur:
+                res = func(cur, *args, **kwargs)
+            return res
+        return inner
+    return wrapper
 
-class Urls:
+class Page:
     def __init__(self, DATABASE_URL):
         self.conn = pg2.connect(DATABASE_URL)
 
-    def execute_query(self, query, parms=None, factory=DictCursor):
-        with self.conn.cursor(cursor_factory=factory) as cur:
-            cur.execute(query, parms)
-            if factory is None:
-                return cur.fetchone()
-            else:
-                return cur.fetchall()
+    def close(self):
+        self.conn.close()
 
-    def get_content(self):
-        query = "SELECT * FROM urls ORDER BY id DESC"
-        rows = self.execute_query(query)
-
+    def commit(self):
         self.conn.commit()
+
+    @get_cursor(DictCursor)
+    def get_urls(cursor):
+        query = "SELECT * FROM urls ORDER BY id DESC"
+        cursor.execute(query)
+        urls = cursor.fetchall()
+        return [dict(url) for url in urls]
+
+    @get_cursor(DictCursor)
+    def get_checks(cursor, url_id):
+        query = "SELECT * FROM checks WHERE url_id=%s"
+        params = (url_id, ) 
+        cursor.execute(query,params)
+        checks  = cursor.fetchall()
+        return [dict(check) for check in checks]
+
+    @get_cursor(DictCursor)
+    def get_last_check(cursor):
+        query = """
+            SELECT
+                url_id,
+                status_code,
+                MAX(created_at) as last_check
+            FROM checks
+            GROUP BY
+                url_id,
+                status_code"""
+        cursor.execute(query)
+        rows = cursor.fetchall()
         return [dict(row) for row in rows]
 
-    def find(self, id):
+    @get_cursor(DictCursor)
+    def find_url(cursor, id):
         query = "SELECT * FROM urls WHERE id=%s"
-        parms = (id,)
-        row = self.execute_query(query, parms)
-
-        self.conn.commit()
+        params = (id,)
+        cursor.execute(query, params)
+        row = cursor.fetchall()
         return dict(row[0]) if row else None
-
-    def find_by_name(self, name):
+    
+    @get_cursor(DictCursor)
+    def find_url_by_name(cursor, name):
         query = "SELECT * FROM urls WHERE name ILIKE %s"
-        parms = (name, )
+        params = (name, )
+        cursor.execute(query, params)
+        url = cursor.fetchall()
+        return url
 
-        res = self.execute_query(query, parms)
-        return res
-
-    def create(self, url):
+    @get_cursor()
+    def create_url(cursor, url):
         query = """
             INSERT INTO urls (name, created_at)
             VALUES (%s, %s) RETURNING id
             """
-        parms = (url['name'], url['created_at'])
-
-        id = self.execute_query(query, parms, factory=None)[0]
-
-        self.conn.commit()
+        params = (url['name'], url['created_at'])
+        cursor.execute(query, params)
+        id = cursor.fetchone()[0]
         return id
 
-
-class Checks:
-    def __init__(self, DATABASE_URL):
-        self.conn = pg2.connect(DATABASE_URL)
-
-    def execute_query(self, query, parms=None, factory=DictCursor):
-        with self.conn.cursor(cursor_factory=factory) as cur:
-            cur.execute(query, parms)
-            if factory is None:
-                return cur.fetchone()
-            else:
-                return cur.fetchall()
-
-    def get_checks(self, id):
+    @get_cursor()
+    def create_check(cursor, check):
         query = """
-            SELECT *
-            FROM url_checks
-            WHERE url_id=%s
-            ORDER BY id DESC
-            """
-        parms = (id,)
-        rows = self.execute_query(query, parms)
-
-        self.conn.commit()
-        return [dict(row) for row in rows]
-
-    def get_url_with_last_check(self):
-        query = """
-            SELECT
-                url.id,
-                url.name,
-                MAX(checks.created_at) AS last_check,
-                checks.status_code
-            FROM urls AS url
-            LEFT JOIN url_checks AS checks
-            ON url.id = checks.url_id
-            GROUP BY url.id, url.name, checks.status_code
-            ORDER BY url.id DESC
-            """
-        rows = self.execute_query(query)
-
-        self.conn.commit()
-        return [dict(row) for row in rows]
-
-    def save(self, check):
-        query = """
-            INSERT INTO url_checks (
-                    url_id,
-                    status_code,
-                    h1,
-                    title,
-                    description,
-                    created_at
-                )
+            INSERT INTO checks (
+                url_id,
+                status_code,
+                h1,
+                title,
+                description,
+                created_at
+            )
             VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id"""
-        parms = (
+            """
+        params = (
             check['url_id'],
-            check['code'],
+            check['status_code'],
             check['h1'],
             check['title'],
             check['description'],
             check['created_at']
-        )
-
-        self.execute_query(query, parms, factory=None)
-
-        self.conn.commit()
+            )
+        cursor.execute(query, params)
