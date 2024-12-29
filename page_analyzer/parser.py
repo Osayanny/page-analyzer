@@ -1,4 +1,11 @@
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+
+
+def parse_url(url):
+    parsed_url = urlparse(url)
+    name = f'{parsed_url.scheme}://{parsed_url.netloc}'
+    return name
 
 
 def parse_response(response):
