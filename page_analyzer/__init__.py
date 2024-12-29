@@ -1,8 +1,7 @@
 from page_analyzer.app import app
-from page_analyzer.repositories import Checks, Urls
+from page_analyzer.repositories import Page
 
 __all__ = [
-    'Urls',
-    'Checks',
+    'Page',
     'app'
 ]
