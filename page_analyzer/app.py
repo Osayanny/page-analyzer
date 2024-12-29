@@ -48,7 +48,7 @@ def urls_index():
             }
     urls = list(url_with_last_check.values())
     page_repo.close()
-        
+
     return render_template(
         'urls.html',
         urls=urls
@@ -80,7 +80,7 @@ def urls_index_post():
         }
         url_id = page_repo.create_url(url)
         page_repo.commit()
-        
+
         flash('Страница успешно добавлена', 'success')
     page_repo.close()
     return redirect(url_for('urls_show', url_id=url_id))
@@ -97,6 +97,7 @@ def urls_show(url_id):
         url=url,
         checks=checks
     )
+
 
 @app.route('/urls/<url_id>/checks', methods=['POST'])
 def url_check(url_id):

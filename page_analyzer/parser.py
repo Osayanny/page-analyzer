@@ -1,5 +1,6 @@
-from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+
+from bs4 import BeautifulSoup
 
 
 def parse_url(url):
@@ -11,7 +12,7 @@ def parse_url(url):
 def parse_response(response):
 
     tags = {}
-    
+
     html = response.text
     soup = BeautifulSoup(html, 'html.parser')
 

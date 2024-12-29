@@ -2,6 +2,7 @@
 import psycopg2 as pg2
 from psycopg2.extras import DictCursor
 
+
 def get_cursor(factory=None):
     def wrapper(func):
         def inner(self, *args, **kwargs):
@@ -10,6 +11,7 @@ def get_cursor(factory=None):
             return res
         return inner
     return wrapper
+
 
 class Page:
     def __init__(self, DATABASE_URL):
@@ -31,9 +33,9 @@ class Page:
     @get_cursor(DictCursor)
     def get_checks(cursor, url_id):
         query = "SELECT * FROM checks WHERE url_id=%s"
-        params = (url_id, ) 
-        cursor.execute(query,params)
-        checks  = cursor.fetchall()
+        params = (url_id, )
+        cursor.execute(query, params)
+        checks = cursor.fetchall()
         return [dict(check) for check in checks]
 
     @get_cursor(DictCursor)
@@ -58,7 +60,7 @@ class Page:
         cursor.execute(query, params)
         row = cursor.fetchall()
         return dict(row[0]) if row else None
-    
+
     @get_cursor(DictCursor)
     def find_url_by_name(cursor, name):
         query = "SELECT * FROM urls WHERE name ILIKE %s"
