@@ -7,7 +7,7 @@ name varchar(255) unique not null,
 created_at date not null
 );
 
-create table url_checks (
+create table checks (
     id int primary key generated always as identity,
     url_id int references urls (id) not null,
     status_code int not null,
