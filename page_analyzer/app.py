@@ -8,13 +8,15 @@ from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
 
 from page_analyzer.parser import parse_response, parse_url
-from page_analyzer.repositories import Page
+from page_analyzer.PageRepository import Page
 
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-db_url = os.getenv('DATABASE_URL')
+app.config.update(
+    SECRET_KEY=os.getenv('SECRET_KEY'),
+    DB_URL=os.getenv('DATABASE_URL')
+    )
 
 
 @app.route('/')
@@ -27,37 +29,19 @@ def index():
 
 @app.route('/urls')
 def urls_index():
-    page_repo = Page(db_url)
-    urls = page_repo.get_urls()
-    checks = page_repo.get_last_check()
-    url_with_last_check = {}
-
-    for url in urls:
-        url_with_last_check[url['id']] = url
-
-    for check in checks:
-        if check['url_id'] in url_with_last_check:
-            url_with_last_check[check['url_id']].update({
-                'last_check': check['last_check'],
-                'status_code': check['status_code']
-            })
-        else:
-            url_with_last_check[check['url_id']] = {
-                'last_check': check['last_check'],
-                'status_code': check['status_code']
-            }
-    urls = list(url_with_last_check.values())
+    page_repo = Page(app.config['DB_URL'])
+    urls_with_last_check = page_repo.get_urls_with_last_check()
     page_repo.close()
 
     return render_template(
         'urls.html',
-        urls=urls
+        urls=urls_with_last_check,
     )
 
 
 @app.route('/urls', methods=['POST'])
 def urls_index_post():
-    page_repo = Page(db_url)
+    page_repo = Page(app.config['DB_URL'])
 
     url = request.form.to_dict().get('url')
     is_valid = validators.url(url)
@@ -72,7 +56,7 @@ def urls_index_post():
     urls = page_repo.find_url_by_name(name)
     if urls:
         flash('Страница уже существует', 'info')
-        url_id = urls[0].get('id')
+        url_id = urls[0]
     else:
         url = {
             'name': name,
@@ -88,7 +72,7 @@ def urls_index_post():
 
 @app.route('/urls/<url_id>')
 def urls_show(url_id):
-    page_repo = Page(db_url)
+    page_repo = Page(app.config['DB_URL'])
     url = page_repo.find_url(url_id)
     checks = page_repo.get_checks(url_id)
     page_repo.close()
@@ -101,11 +85,11 @@ def urls_show(url_id):
 
 @app.route('/urls/<url_id>/checks', methods=['POST'])
 def url_check(url_id):
-    page_repo = Page(db_url)
+    page_repo = Page(app.config['DB_URL'])
     url = page_repo.find_url(url_id)
 
     try:
-        response = requests.get(url['name'])
+        response = requests.get(url.name)
         response.raise_for_status()
     except (
         requests.exceptions.HTTPError,

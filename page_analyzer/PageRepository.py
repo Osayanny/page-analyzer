@@ -1,6 +1,6 @@
 
 import psycopg2 as pg2
-from psycopg2.extras import DictCursor
+from psycopg2.extras import DictCursor, NamedTupleCursor
 
 
 def get_cursor(factory=None):
@@ -30,13 +30,13 @@ class Page:
         urls = cursor.fetchall()
         return [dict(url) for url in urls]
 
-    @get_cursor(DictCursor)
+    @get_cursor(NamedTupleCursor)
     def get_checks(cursor, url_id):
-        query = "SELECT * FROM checks WHERE url_id=%s"
+        query = "SELECT * FROM checks WHERE url_id=%s ORDER BY id DESC"
         params = (url_id, )
         cursor.execute(query, params)
         checks = cursor.fetchall()
-        return [dict(check) for check in checks]
+        return checks
 
     @get_cursor(DictCursor)
     def get_last_check(cursor):
@@ -53,20 +53,42 @@ class Page:
         rows = cursor.fetchall()
         return [dict(row) for row in rows]
 
-    @get_cursor(DictCursor)
+    def get_urls_with_last_check(self):
+        urls = self.get_urls()
+        checks = self.get_last_check()
+        url_with_last_check = {}
+
+        for url in urls:
+            url_with_last_check[url['id']] = url
+
+        for check in checks:
+            if check['url_id'] in url_with_last_check:
+                url_with_last_check[check['url_id']].update({
+                    'last_check': check['last_check'],
+                    'status_code': check['status_code']
+                })
+            else:
+                url_with_last_check[check['url_id']] = {
+                    'last_check': check['last_check'],
+                    'status_code': check['status_code']
+                }
+        urls = list(url_with_last_check.values())
+        return urls
+
+    @get_cursor(NamedTupleCursor)
     def find_url(cursor, id):
         query = "SELECT * FROM urls WHERE id=%s"
         params = (id,)
         cursor.execute(query, params)
-        row = cursor.fetchall()
-        return dict(row[0]) if row else None
+        row = cursor.fetchone()
+        return row
 
-    @get_cursor(DictCursor)
+    @get_cursor(NamedTupleCursor)
     def find_url_by_name(cursor, name):
-        query = "SELECT * FROM urls WHERE name ILIKE %s"
+        query = "SELECT * FROM urls WHERE %s IN (SELECT name FROM urls)"
         params = (name, )
         cursor.execute(query, params)
-        url = cursor.fetchall()
+        url = cursor.fetchone()
         return url
 
     @get_cursor()
@@ -77,8 +99,8 @@ class Page:
             """
         params = (url['name'], url['created_at'])
         cursor.execute(query, params)
-        id = cursor.fetchone()[0]
-        return id
+        url_id = cursor.fetchone()[0]
+        return url_id
 
     @get_cursor()
     def create_check(cursor, check):
