@@ -41,14 +41,13 @@ class Page:
     @get_cursor(DictCursor)
     def get_last_check(cursor):
         query = """
-            SELECT
+            SELECT DISTINCT ON (url_id)
                 url_id,
                 status_code,
-                MAX(created_at) as last_check
+                created_at
             FROM checks
-            GROUP BY
-                url_id,
-                status_code"""
+            ORDER BY
+                url_id"""
         cursor.execute(query)
         rows = cursor.fetchall()
         return [dict(row) for row in rows]
@@ -64,12 +63,12 @@ class Page:
         for check in checks:
             if check['url_id'] in url_with_last_check:
                 url_with_last_check[check['url_id']].update({
-                    'last_check': check['last_check'],
+                    'last_check': check['created_at'],
                     'status_code': check['status_code']
                 })
             else:
                 url_with_last_check[check['url_id']] = {
-                    'last_check': check['last_check'],
+                    'last_check': check['created_at'],
                     'status_code': check['status_code']
                 }
         urls = list(url_with_last_check.values())
