@@ -17,7 +17,7 @@ This web application is designed for SEO analysis of websites.
 To install app on your server:
 1. Clone this repo
 ```bash
-$ git clone git@github.com:Osayanny/python-project-83.git
+git clone git@github.com:Osayanny/python-project-83.git
 ```
 2. Create dotenv file
 ```dosini
@@ -26,7 +26,7 @@ SECRET_KEY='your key'
 ```
 3. Start the app
 ```bash
-$ cd python-project-83 && make build && make start
+cd python-project-83 && make build && make start
 ```
 
 ### How to use?
