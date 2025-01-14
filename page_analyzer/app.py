@@ -23,7 +23,6 @@ app.config.update(
 def index():
     return render_template(
         'index.html',
-        url={}
     )
 
 
