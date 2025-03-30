@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
 
 from page_analyzer.parser import parse_response, parse_url
-from page_analyzer.PageRepository import Page
+from page_analyzer.page_repository import Page
 
 load_dotenv()
 
@@ -52,10 +52,10 @@ def urls_index_post():
     name = parse_url(url)
     created_at = date.today().isoformat()
 
-    urls = page_repo.find_url_by_name(name)
-    if urls:
+    url = page_repo.find_url_by_name(name)
+    if url:
         flash('Страница уже существует', 'info')
-        url_id = urls[0]
+        url_id = url.id
     else:
         url = {
             'name': name,

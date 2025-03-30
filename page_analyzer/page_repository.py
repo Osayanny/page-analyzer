@@ -84,7 +84,7 @@ class Page:
 
     @get_cursor(NamedTupleCursor)
     def find_url_by_name(cursor, name):
-        query = "SELECT * FROM urls WHERE %s IN (SELECT name FROM urls)"
+        query = "SELECT * FROM urls WHERE name = %s"
         params = (name, )
         cursor.execute(query, params)
         url = cursor.fetchone()
