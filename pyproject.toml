@@ -1,4 +1,4 @@
-[tool.poetry]
+[project]
 name = "hexlet-code"
 version = "0.1.0"
 description = "Web application for analyzing SEO of a site"
@@ -7,22 +7,19 @@ readme = "README.md"
 packages =[
     {include = 'page_analyzer'}
 ]
+requires-python = ">=3.10"
+    dependencies = [
+    "flask>=3.1.0",
+    "gunicorn>=23.0.0",
+    "python-dotenv>=1.0.1",
+    "validators>=0.34.0",
+    "requests>=2.32.3",
+    "beautifulsoup4>=4.12.3",
+    "psycopg2-binary>=2.9.10"
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-flask = "^3.1.0"
-gunicorn = "^23.0.0"
-python-dotenv = "^1.0.1"
-validators = "^0.34.0"
-requests = "^2.32.3"
-beautifulsoup4 = "^4.12.3"
-psycopg2-binary = "^2.9.10"
-
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.8.1"
-flake8-isort = "^6.1.1"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "ruff>=0.8.1",
+    "flake8-isort>=6.1.1"
+]
